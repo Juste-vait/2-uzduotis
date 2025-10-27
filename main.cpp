@@ -75,6 +75,21 @@ struct Transaction {
     }
 };
 
+struct BlockHeader {
+    string prev_block_hash;
+    double timestamp;
+    string version;
+    string transactions_hash;
+    string difficulty;
+    uint64_t nonce = 0;
+
+    string to_string() const {
+        ostringstream oss;
+        oss << prev_block_hash << '|' << std::fixed << setprecision(6) << timestamp << '|' << version << '|' << transactions_hash << '|' << difficulty << '|' << nonce;
+        return oss.str();
+    }
+};
+
 int main() {
     cout << " Supaprastintas Blockchain " << VERSION_ << endl;
     return 0;
