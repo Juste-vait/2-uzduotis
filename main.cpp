@@ -90,6 +90,18 @@ struct BlockHeader {
     }
 };
 
+struct Block {
+    BlockHeader header;
+    vector<Transaction> transactions;
+
+    explicit Block(BlockHeader h, vector<Transaction> txs)
+        : header(std::move(h)), transactions(std::move(txs)) {}
+
+    string compute_hash() const {
+        return custom_hash(header.to_string());
+    }
+};
+
 int main() {
     cout << " Supaprastintas Blockchain " << VERSION_ << endl;
     return 0;
