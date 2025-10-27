@@ -107,6 +107,18 @@ class Blockchain {
             create_genesis_block();
         }
     
+        void generate_users(int n) {
+            cout << "[USERS] Generuojami " << n << " vartotojai...\n";
+            users.reserve(n);
+            for (int i = 0; i < n; ++i) {
+                string name = "User_" + fmt_index(i, 4);
+                string pk = "pk_" + custom_hash(name).substr(0, 16);
+                int64_t balance = rand_int(100, 1'000'000);
+                users.emplace(pk, User{name, pk, balance});
+                user_keys.push_back(pk);
+            }
+            cout << "[USERS] Baigta. Iš viso: " << users.size() << "\n";
+        }
     
     private:
         vector<Block> blocks;
