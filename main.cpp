@@ -130,14 +130,63 @@ class Blockchain {
             cout << "[GENESIS] Sukurtas genesis blokas. Hash = " << genesis.compute_hash() << "\n";
         }
     
-        static string fmt_index(int x, int width);
-        double current_time_seconds() const;
-        int64_t rand_int(int64_t a, int64_t b);
-        string random_key();
-        vector<Transaction> sample_transactions(int k);
+        static string fmt_index(int x, int width) {
+            ostringstream oss;
+            oss << setw(width) << setfill('0') << x;
+            return oss.str();
+        }
     
-        void apply_transactions(const vector<Transaction>& txs);
-        void erase_used_transactions(const vector<Transaction>& used);
+        double current_time_seconds() const {
+            using namespace std::chrono;
+            auto now = system_clock::now().time_since_epoch();
+            return duration<double>(now).count();
+        }
+    
+        int64_t rand_int(int64_t a, int64_t b) {
+            uniform_int_distribution<int64_t> dist(a, b);
+            return dist(rng);
+        }
+    
+        string random_key() {
+            uniform_int_distribution<size_t> dist(0, user_keys.size() - 1);
+            return user_keys[dist(rng)];
+        }
+    
+        vector<Transaction> sample_transactions(int k) {
+            vector<int> idx(pending_transactions.size());
+            iota(idx.begin(), idx.end(), 0);
+            shuffle(idx.begin(), idx.end(), rng);
+            vector<Transaction> out;
+            out.reserve(k);
+            for (int i = 0; i < k; ++i) out.push_back(pending_transactions[idx[i]]);
+            return out;
+        }
+    
+        void apply_transactions(const vector<Transaction>& txs) {
+            for (const auto& tx : txs) {
+                auto& sender = users[tx.sender];
+                auto& receiver = users[tx.receiver];
+                if (sender.balance >= tx.amount) {
+                    sender.balance -= tx.amount;
+                    receiver.balance += tx.amount;
+                } else {
+    
+                }
+            }
+        }
+    
+        void erase_used_transactions(const vector<Transaction>& used) {
+            unordered_set<string> used_ids;
+            used_ids.reserve(used.size()*2);
+            for (auto& t : used) used_ids.insert(t.transaction_id);
+    
+            vector<Transaction> keep;
+            keep.reserve(pending_transactions.size());
+            for (auto& t : pending_transactions) {
+                if (!used_ids.count(t.transaction_id)) keep.push_back(std::move(t));
+            }
+            pending_transactions.swap(keep);
+        }
     };
     
 
