@@ -94,13 +94,52 @@ struct Block {
     BlockHeader header;
     vector<Transaction> transactions;
 
-    explicit Block(BlockHeader h, vector<Transaction> txs)
-        : header(std::move(h)), transactions(std::move(txs)) {}
+    explicit Block(BlockHeader h, vector<Transaction> txs) : header(std::move(h)), transactions(std::move(txs)) {}
 
     string compute_hash() const {
         return custom_hash(header.to_string());
     }
 };
+
+class Blockchain {
+    public:
+        Blockchain() : rng(RNG_SEED) {
+            create_genesis_block();
+        }
+    
+    
+    private:
+        vector<Block> blocks;
+        unordered_map<string, User> users;
+        vector<string> user_keys;
+        vector<Transaction> pending_transactions;
+    
+        mt19937_64 rng;
+    
+        void create_genesis_block() {
+            BlockHeader header{
+                string(64, '0'),
+                current_time_seconds(),
+                VERSION_,
+                string(64, '0'),
+                DIFFICULTY_PREFIX,
+                0
+            };
+            Block genesis(header, {});
+            blocks.push_back(genesis);
+            cout << "[GENESIS] Sukurtas genesis blokas. Hash = " << genesis.compute_hash() << "\n";
+        }
+    
+        static string fmt_index(int x, int width);
+        double current_time_seconds() const;
+        int64_t rand_int(int64_t a, int64_t b);
+        string random_key();
+        vector<Transaction> sample_transactions(int k);
+    
+        void apply_transactions(const vector<Transaction>& txs);
+        void erase_used_transactions(const vector<Transaction>& used);
+    };
+    
 
 int main() {
     cout << " Supaprastintas Blockchain " << VERSION_ << endl;
