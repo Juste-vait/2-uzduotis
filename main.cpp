@@ -56,6 +56,25 @@ string custom_hash(const string& input) {
     return ss.str();
 }
 
+struct User {
+    string name;
+    string public_key;
+    int64_t balance;
+};
+
+struct Transaction {
+    string sender;
+    string receiver;
+    int64_t amount;
+    string transaction_id;
+
+    Transaction(const string& s, const string& r, int64_t a)
+        : sender(s), receiver(r), amount(a) {
+        string base = sender + "|" + receiver + "|" + to_string(amount);
+        transaction_id = custom_hash(base);
+    }
+};
+
 int main() {
     cout << " Supaprastintas Blockchain " << VERSION_ << endl;
     return 0;
