@@ -204,6 +204,7 @@ class Blockchain {
         void run_all() {
             cout << "[INFO] " << info() << "\n" << endl;
             cout << "[TARGET] Target: '" << DIFFICULTY_PREFIX << "...' (hash prefiksas)\n" << endl;
+            cout << "------------------------------------------------------------------------------------\n" << endl;
             int mined = 0;
             while (!pending_transactions.empty()) {
                 if (MAX_BLOCKS_TO_MINE.has_value() && mined >= *MAX_BLOCKS_TO_MINE) {
@@ -301,7 +302,7 @@ class Blockchain {
     
 
 int main() {
-    cout << " Supaprastintas Blockchain" << VERSION_ << "\n" << endl;
+    cout << " Supaprastintas Blockchain " << VERSION_ << "\n" << endl;
     Blockchain bc;
     bc.generate_users(USERS_COUNT);
     bc.generate_transactions(TX_COUNT);
