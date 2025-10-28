@@ -10,9 +10,28 @@ Paleisti: ./blockchain <rm>
 
 --------------------------
 
-# Struktūra
+## Struktūros ir klasės
 
-l
+**User** – saugo vartotojo duomenis: vardą, viešą raktą ir balansą.  
+Naudojama vartotojų kūrimui ir balansų valdymui.
+
+**Transaction** – aprašo vieną pervedimą tarp vartotojų.  
+Turi siuntėją, gavėją, sumą ir automatiškai generuojamą `transaction_id` pagal hash.
+
+**BlockHeader** – apima visą bloko antraštę: ankstesnio bloko hash, laiką, versiją, transakcijų hash, difficulty ir nonce.  
+Metodas `to_string()` sujungia šiuos duomenis į tekstą, kuris vėliau hashuojamas.
+
+**Block** – jungia `BlockHeader` ir transakcijų sąrašą.  
+Metodas `compute_hash()` apskaičiuoja viso bloko hash ir naudojamas tikrinant vientisumą.
+
+**Blockchain** – pagrindinė klasė valdanti visą sistemą.  
+Atsakinga už:
+- vartotojų ir transakcijų generavimą,  
+- blokų formavimą ir kasimą (Proof-of-Work),  
+- balansų atnaujinimą,  
+- grandinės vientisumo palaikymą.
+
+--------------------------
 
 ## Veikimo eiga
 
@@ -32,7 +51,7 @@ l
    Šios transakcijos patenka į „pending“ sąrašą.
 
 4. **Formuojamas naujas blokas**  
-   Iš pendiing transakcijų paimama dalis (100).  
+   Iš pending transakcijų paimama dalis (100).  
    Iš jų sukuriamas `BlockHeader`, kuriame yra:
    - ankstesnio bloko hash,
    - dabartinis laikas (timestamp),
@@ -53,3 +72,8 @@ l
 
 8. **Rezultatas**  
    Programa išveda informaciją apie iškastus blokus, kiek laiko užtruko kasimas, likusias transakcijas ir paskutinio bloko hash.
+
+--------------------------
+
+Screenshot'ai:
+
