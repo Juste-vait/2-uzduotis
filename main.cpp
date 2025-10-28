@@ -119,6 +119,20 @@ class Blockchain {
             }
             cout << "[USERS] Baigta. Iš viso: " << users.size() << "\n";
         }
+
+        void generate_transactions(int64_t n) {
+            cout << "[TX] Generuojamos " << n << " transakcijos...\n";
+            pending_transactions.reserve(pending_transactions.size() + n);
+            for (int64_t i = 0; i < n; ++i) {
+                string sender = random_key();
+                string receiver = random_key();
+                while (receiver == sender) receiver = random_key();
+                int64_t max_send = max<int64_t>(1, users[sender].balance / 10);
+                int64_t amount = rand_int(1, max_send);
+                pending_transactions.emplace_back(sender, receiver, amount);
+            }
+            cout << "[TX] Baigta. Laukiančių transakcijų: " << pending_transactions.size() << "\n";
+        }        
     
     private:
         vector<Block> blocks;
