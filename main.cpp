@@ -20,6 +20,7 @@ static const int64_t TX_COUNT = 10000;
 static const int TXS_PER_BLOCK = 100;
 static const string DIFFICULTY_PREFIX = "000";
 static const uint64_t RNG_SEED = 42;
+static optional<int> MAX_BLOCKS_TO_MINE = nullopt;
 
 static bool starts_with(const string& s, const string& pref) {
     return s.size() >= pref.size() && equal(pref.begin(), pref.end(), s.begin());
@@ -195,6 +196,28 @@ class Blockchain {
 
         string last_block_hash() const {
             return blocks.back().compute_hash();
+        }
+
+        string info() const {
+            ostringstream oss;
+            oss << "Blockchain(height=" << (blocks.size()-1) << ", users=" << users.size() << ", pending=" << pending_transactions.size() << ")";
+            return oss.str();
+        }
+
+        void run_all() {
+            cout << "[INFO] " << info() << "\n";
+            int mined = 0;
+            while (!pending_transactions.empty()) {
+                if (MAX_BLOCKS_TO_MINE.has_value() && mined >= *MAX_BLOCKS_TO_MINE) {
+                    cout << "[STOP] Pasiekėme demonstracinį limitą: " << *MAX_BLOCKS_TO_MINE << " blokų.\n";
+                    break;
+                }
+                auto b = mine_next_block(TXS_PER_BLOCK);
+                if (!b.has_value()) break;
+                ++mined;
+            }
+            cout << "[DONE] " << info() << "\n";
+            cout << "Paskutinio bloko hash: " << last_block_hash() << "\n";
         }
     
     private:
