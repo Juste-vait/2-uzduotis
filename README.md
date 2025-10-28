@@ -4,9 +4,9 @@
 Supaprastintas blockchain modelis parašytas C++. Demonstruoja pagrindines sąvokas: vartotojų generavimą, transakcijų sąrašą, blokų kasimą (Proof-of-Work) ir grandinės susiejimą per bloko hash.
 
 -------------------------
-Kompiliuoti: g++ -std=c++17 -O2 main.cpp -o blockchain <rm>
+**Kompiliuoti:** g++ -std=c++17 -O2 main.cpp -o blockchain <rm>
 
-Paleisti: ./blockchain <rm>
+**Paleisti:** ./blockchain <rm>
 
 --------------------------
 
@@ -75,5 +75,13 @@ Atsakinga už:
 
 --------------------------
 
-Screenshot'ai:
+**Screenshot'ai:**
+
+Pradžia: <rm>
+![Start](1.jpeg)
+
+Pabaiga: <rm>
+![End](2.jpeg)
+
+
 
