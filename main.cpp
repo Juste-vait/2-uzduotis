@@ -132,7 +132,70 @@ class Blockchain {
                 pending_transactions.emplace_back(sender, receiver, amount);
             }
             cout << "[TX] Baigta. Laukiančių transakcijų: " << pending_transactions.size() << "\n";
-        }        
+        }  
+        
+        optional<Block> mine_next_block(int txs_per_block = TXS_PER_BLOCK) {
+            if (pending_transactions.empty()) {
+                cout << "[MINE] Nėra laukiančių transakcijų.\n";
+                return nullopt;
+            }
+    
+            int k = min<int>(txs_per_block, (int)pending_transactions.size());
+            vector<Transaction> txs = sample_transactions(k);
+    
+            string add_ids;
+            add_ids.reserve(k * 64 + k);
+            for (auto& tx : txs) {
+                add_ids += tx.transaction_id;
+                add_ids += '|';
+            }
+            string txs_hash = custom_hash(add_ids);
+    
+            string prev_hash = last_block_hash();
+            BlockHeader header{
+                prev_hash,
+                current_time_seconds(),
+                VERSION_,
+                txs_hash,
+                DIFFICULTY_PREFIX,
+                0
+            };
+            Block block(header, txs);
+    
+            cout << "[MINE] Kasinėjamas blokas #" << blocks.size() << " su " << txs.size() << " TX...\n";
+            cout << "       Target: '" << DIFFICULTY_PREFIX << "...' (hash prefiksas)\n";
+    
+            auto start = chrono::steady_clock::now();
+            uint64_t attempts = 0;
+            string h;
+    
+            while (true) {
+                h = block.compute_hash();
+                ++attempts;
+                if (starts_with(h, DIFFICULTY_PREFIX)) {
+                    auto took = chrono::duration<double>(chrono::steady_clock::now() - start).count();
+                    cout << "[MINE] IŠKASTA! Hash=" << h << "  per " << attempts << " bandymų, " << fixed << setprecision(2) << took << "s\n";
+                    break;
+                }
+                ++block.header.nonce;
+            }
+    
+            if (block.header.prev_block_hash != last_block_hash()) {
+                cerr << "[ERROR] Grandinė pasikeitė — prev hash nebeatitinka.\n";
+                return nullopt;
+                }
+    
+            apply_transactions(block.transactions);
+            erase_used_transactions(block.transactions);
+    
+            blocks.push_back(std::move(block));
+            cout << "[CHAIN] Blokas #" << (blocks.size()-1) << " pridėtas. Likusių TX: " << pending_transactions.size() << "\n";
+            return blocks.back();
+        }
+
+        string last_block_hash() const {
+            return blocks.back().compute_hash();
+        }
     
     private:
         vector<Block> blocks;
