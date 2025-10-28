@@ -162,7 +162,6 @@ class Blockchain {
             Block block(header, txs);
     
             cout << "[MINE] Kasinėjamas blokas #" << blocks.size() << " su " << txs.size() << " TX...\n";
-            cout << "       Target: '" << DIFFICULTY_PREFIX << "...' (hash prefiksas)\n";
     
             auto start = chrono::steady_clock::now();
             uint64_t attempts = 0;
@@ -188,7 +187,7 @@ class Blockchain {
             erase_used_transactions(block.transactions);
     
             blocks.push_back(std::move(block));
-            cout << "[CHAIN] Blokas #" << (blocks.size()-1) << " pridėtas. Likusių TX: " << pending_transactions.size() << "\n";
+            cout << "[CHAIN] Blokas #" << (blocks.size()-1) << " pridėtas. Likusių TX: " << pending_transactions.size() << "\n" <<endl;
             return blocks.back();
         }
 
@@ -204,6 +203,7 @@ class Blockchain {
 
         void run_all() {
             cout << "[INFO] " << info() << "\n" << endl;
+            cout << "[TARGET] Target: '" << DIFFICULTY_PREFIX << "...' (hash prefiksas)\n" << endl;
             int mined = 0;
             while (!pending_transactions.empty()) {
                 if (MAX_BLOCKS_TO_MINE.has_value() && mined >= *MAX_BLOCKS_TO_MINE) {
@@ -301,7 +301,7 @@ class Blockchain {
     
 
 int main() {
-    cout << " Supaprastintas Blockchain " << VERSION_ << endl;
+    cout << " Supaprastintas Blockchain" << VERSION_ << "\n" << endl;
     Blockchain bc;
     bc.generate_users(USERS_COUNT);
     bc.generate_transactions(TX_COUNT);
