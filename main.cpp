@@ -109,7 +109,6 @@ class Blockchain {
         }
     
         void generate_users(int n) {
-            cout << "[USERS] Generuojami " << n << " vartotojai...\n";
             users.reserve(n);
             for (int i = 0; i < n; ++i) {
                 string name = "User_" + fmt_index(i, 4);
@@ -118,11 +117,10 @@ class Blockchain {
                 users.emplace(pk, User{name, pk, balance});
                 user_keys.push_back(pk);
             }
-            cout << "[USERS] Baigta. Iš viso: " << users.size() << "\n";
+            cout << "[USERS] Sugeneruota: " << users.size() << " vartotojų\n" << endl;
         }
 
         void generate_transactions(int64_t n) {
-            cout << "[TX] Generuojamos " << n << " transakcijos...\n";
             pending_transactions.reserve(pending_transactions.size() + n);
             for (int64_t i = 0; i < n; ++i) {
                 string sender = random_key();
@@ -132,7 +130,7 @@ class Blockchain {
                 int64_t amount = rand_int(1, max_send);
                 pending_transactions.emplace_back(sender, receiver, amount);
             }
-            cout << "[TX] Baigta. Laukiančių transakcijų: " << pending_transactions.size() << "\n";
+            cout << "[TX] Sugeneruota: " << pending_transactions.size() << " laukiančių transakcijų\n" << endl;
         }  
         
         optional<Block> mine_next_block(int txs_per_block = TXS_PER_BLOCK) {
@@ -205,7 +203,7 @@ class Blockchain {
         }
 
         void run_all() {
-            cout << "[INFO] " << info() << "\n";
+            cout << "[INFO] " << info() << "\n" << endl;
             int mined = 0;
             while (!pending_transactions.empty()) {
                 if (MAX_BLOCKS_TO_MINE.has_value() && mined >= *MAX_BLOCKS_TO_MINE) {
@@ -239,7 +237,7 @@ class Blockchain {
             };
             Block genesis(header, {});
             blocks.push_back(genesis);
-            cout << "[GENESIS] Sukurtas genesis blokas. Hash = " << genesis.compute_hash() << "\n";
+            cout << "[GENESIS] Sukurtas genesis blokas. Hash = " << genesis.compute_hash() << "\n" << endl;
         }
     
         static string fmt_index(int x, int width) {
@@ -304,5 +302,9 @@ class Blockchain {
 
 int main() {
     cout << " Supaprastintas Blockchain " << VERSION_ << endl;
+    Blockchain bc;
+    bc.generate_users(USERS_COUNT);
+    bc.generate_transactions(TX_COUNT);
+    bc.run_all();
     return 0;
 }
