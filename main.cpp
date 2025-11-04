@@ -14,7 +14,7 @@
 
 using namespace std;
 
-static const string VERSION_ = "v0.1";
+static const string VERSION_ = "v0.2";
 static const int USERS_COUNT = 1000;
 static const int64_t TX_COUNT = 10000;
 static const int TXS_PER_BLOCK = 100;
@@ -174,7 +174,7 @@ class Blockchain {
                     time_limit *= 1.5;
                     continue;
                 }
-                
+
                 Block block = std::move(*mined);
                 apply_transactions(block.transactions);
                 erase_used_transactions(block.transactions);
