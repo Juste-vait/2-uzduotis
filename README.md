@@ -26,10 +26,12 @@ Metodas `compute_hash()` apskaičiuoja viso bloko hash ir naudojamas tikrinant v
 
 **Blockchain** – pagrindinė klasė valdanti visą sistemą.  
 Atsakinga už:
-- vartotojų ir transakcijų generavimą,  
-- blokų formavimą ir kasimą (Proof-of-Work),  
-- balansų atnaujinimą,  
-- grandinės vientisumo palaikymą.
+- vartotojų ir transakcijų generavimą;
+- blokų kūrimą ir kasimą naudojant kelis kandidatus (Proof-of-Work imitacija);
+- Merkle Root apskaičiavimą kiekvienam blokui;
+- transakcijų verifikaciją (balansų, ID, gavėjo ir siuntėjo tikrinimą);
+- balansų atnaujinimą tik patvirtintoms transakcijoms;
+- grandinės vientisumo palaikymą ir blokų sekos išsaugojimą.
 
 --------------------------
 
@@ -50,28 +52,36 @@ Atsakinga už:
    - automatiškai sukurtą `transaction_id` (pagal hash).  
    Šios transakcijos patenka į „pending“ sąrašą.
 
-4. **Formuojamas naujas blokas**  
-   Iš pending transakcijų paimama dalis (100).  
-   Iš jų sukuriamas `BlockHeader`, kuriame yra:
-   - ankstesnio bloko hash,
-   - dabartinis laikas (timestamp),
-   - transakcijų hash (visų ID sujungtas ir suhashuotas),
-   - difficulty („000“),
-   - nonce (pradžioje 0).
+4. **Sudaromi keli kandidatiniai blokai**  
+   Iš laukiančių transakcijų suformuojami 5 skirtingi kandidatiniai blokai (~100 transakcijų kiekviename).  
+   Kiekvienam kandidatui apskaičiuojamas **Merkle Root**, kuris įrašomas į `BlockHeader`.  
 
 5. **Kasimas (Proof of Work)**  
-   Programa keičia `nonce` reikšmę, kol `custom_hash(header.to_string())` prasideda simboliais `"000"`.  
+   5 kandidatiniai blokai „lenktyniauja“ dėl tinkamo hash.  
+   Programa paeiliui tikrina kiekvieną kandidatą (for ciklas) ribotą laiką (pvz. 5 s).  
+   Kiekviename bandyme keičiamas `nonce`, kol kažkurio iš kandidatinių blokų hash prasideda simboliais `"000"`.  
+   Jei per nustatytą laiką nė vienas kandidatas neranda tinkamo hash – laiko limitas padidinamas (`×1.5`) ir ciklas kartojamas.
 
-6. **Bloko patvirtinimas ir pridėjimas**  
+6. **Transakcijų verifikacija**  
+   Prieš pritaikant transakcijas tikrinama:  
+   - ar siuntėjas ir gavėjas egzistuoja, 
+   - ar `transaction_id` atitinka maišos reikšmę.  
+   - ar siuntėjas turi pakankamai lėšų,  
+   - ar siuntėjas nėra tas pats kaip gavėjas,  
+   - ar suma teigiama,  
+   Neteisingos transakcijos praleidžiamos.
+
+7. **Bloko patvirtinimas ir įtraukimas į grandinę**  
    Radus tinkamą hash:
-   - transakcijos pritaikomos (balansai atnaujinami),
-   - panaudotos transakcijos pašalinamos iš laukiančių,
-   - blokas įtraukiamas į grandinę.
+   - visos teisingos transakcijos pritaikomos (balansai atnaujinami);  
+   - panaudotos transakcijos pašalinamos iš laukiančių;  
+   - blokas pridedamas į grandinę.  
 
-7. **Procesas kartojamas**, kol nelieka laukiančių transakcijų.
+8. **Procesas kartojamas**  
+   Kol dar liko laukiančių transakcijų – kasimas vykdomas toliau, kuriant naujus kandidatinius blokus ir tvirtinant juos į grandinę.
 
-8. **Rezultatas**  
-   Programa išveda informaciją apie iškastus blokus, kiek laiko užtruko kasimas, likusias transakcijas ir paskutinio bloko hash.
+9. **Rezultatas**  
+   Programa išveda informaciją apie iškastus blokus, jų hash reikšmes, `nonce`, kiek bandymų atlikta ir likusių transakcijų skaičių.  
 
 --------------------------
 
