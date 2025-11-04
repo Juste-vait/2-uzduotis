@@ -157,55 +157,33 @@ class Blockchain {
                 cout << "[MINE] Nėra laukiančių transakcijų.\n";
                 return nullopt;
             }
-    
-            int k = min<int>(txs_per_block, (int)pending_transactions.size());
-            vector<Transaction> txs = sample_transactions(k);
-    
-            vector<string> ids;
-            for (auto& tx : txs) {
-                ids.push_back(tx.transaction_id);
-            }
-            string txs_hash = merkle_root_from_ids(ids);
-    
-            string prev_hash = last_block_hash();
-            BlockHeader header{
-                prev_hash,
-                current_time_seconds(),
-                VERSION_,
-                txs_hash,
-                DIFFICULTY_PREFIX,
-                0
-            };
-            Block block(header, txs);
-    
-            cout << "[MINE] Kasinėjamas blokas #" << blocks.size() << " su " << txs.size() << " TX...\n";
-    
-            auto start = chrono::steady_clock::now();
-            uint64_t attempts = 0;
-            string h;
-    
+
+            double time_limit = 5.0; 
+            uint64_t max_tries = 200'000;
+
             while (true) {
-                h = block.compute_hash();
-                ++attempts;
-                if (starts_with(h, DIFFICULTY_PREFIX)) {
-                    auto took = chrono::duration<double>(chrono::steady_clock::now() - start).count();
-                    cout << "[MINE] IŠKASTA! Hash=" << h << "  per " << attempts << " bandymų, " << fixed << setprecision(2) << took << "s\n";
-                    break;
+                vector<Block> cands; cands.reserve(5);
+                for (int i = 0; i < 5; ++i) cands.push_back(make_candidate_block(txs_per_block));
+
+                cout << "[MINE] Kasinėjame 5 kandidatus po " << txs_per_block << " TX (" << fixed << setprecision(2) << time_limit << "s / " << max_tries << " bandymų)...\n";
+
+                auto mined = mine_candidates(cands, time_limit, max_tries);
+
+                if (!mined) {
+                    cout << "[MINE] Neradome per terminą — didiname laiką/bandymus ir bandome vėl.\n";
+                    time_limit *= 1.5;
+                    max_tries  *= 2;
+                    continue;
                 }
-                ++block.header.nonce;
+
+                Block block = std::move(*mined);
+                apply_transactions(block.transactions);
+                erase_used_transactions(block.transactions);
+                blocks.push_back(std::move(block));
+
+                cout << "[CHAIN] Blokas #" << (blocks.size()-1) << " pridėtas. Likusių TX: " << pending_transactions.size() << "\n\n";
+                return blocks.back();
             }
-    
-            if (block.header.prev_block_hash != last_block_hash()) {
-                cerr << "[ERROR] Grandinė pasikeitė — prev hash nebeatitinka.\n";
-                return nullopt;
-                }
-    
-            apply_transactions(block.transactions);
-            erase_used_transactions(block.transactions);
-    
-            blocks.push_back(std::move(block));
-            cout << "[CHAIN] Blokas #" << (blocks.size()-1) << " pridėtas. Likusių TX: " << pending_transactions.size() << "\n" <<endl;
-            return blocks.back();
         }
 
         string last_block_hash() const {
