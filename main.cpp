@@ -165,8 +165,6 @@ class Blockchain {
                 cands.reserve(5);
                 for (int i = 0; i < 5; ++i) cands.push_back(make_candidate_block(txs_per_block));
 
-                cout << "[MINE] Kasinėjame 5 kandidatus po " << txs_per_block << " TX (" << fixed << setprecision(2) << time_limit << "s / " << max_tries << " bandymų)...\n";
-
                 auto mined = mine_candidates(cands, time_limit);
 
                 if (!mined) {
@@ -198,6 +196,7 @@ class Blockchain {
         void run_all() {
             cout << "[INFO] " << info() << "\n" << endl;
             cout << "[TARGET] Target: '" << DIFFICULTY_PREFIX << "...' (hash prefiksas)\n" << endl;
+            cout << "[MINE] Kasinėjame 5 kandidatus po " << TXS_PER_BLOCK << " TX (per 5s)\n";
             cout << "------------------------------------------------------------------------------------\n" << endl;
             int mined = 0;
             while (!pending_transactions.empty()) {
