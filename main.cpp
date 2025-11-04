@@ -57,6 +57,26 @@ string custom_hash(const string& input) {
     return ss.str();
 }
 
+static string merkle_root_from_ids(vector<string> ids) {
+    if (ids.empty()) return string(64, '0');
+
+    while (ids.size() > 1) {
+        vector<string> next;
+        next.reserve((ids.size() + 1) / 2);
+
+        for (size_t i = 0; i < ids.size(); i += 2) {
+            string L = ids[i];
+            string R = (i + 1 < ids.size()) ? ids[i + 1] : ids[i];
+            next.push_back(custom_hash(L + R));
+        }
+
+        ids.swap(next);
+    }
+
+    return ids[0];
+}
+
+
 struct User {
     string name;
     string public_key;
@@ -69,8 +89,7 @@ struct Transaction {
     int64_t amount;
     string transaction_id;
 
-    Transaction(const string& s, const string& r, int64_t a)
-        : sender(s), receiver(r), amount(a) {
+    Transaction(const string& s, const string& r, int64_t a) : sender(s), receiver(r), amount(a) {
         string base = sender + "|" + receiver + "|" + to_string(amount);
         transaction_id = custom_hash(base);
     }
