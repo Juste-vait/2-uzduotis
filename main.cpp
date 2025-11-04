@@ -357,6 +357,34 @@ class Blockchain {
             return Block(header, std::move(txs));
         }
 
+        optional<Block> mine_candidates(vector<Block>& candidates, double seconds) {
+            using clock = std::chrono::steady_clock;
+            auto start = clock::now();
+            auto deadline = start + std::chrono::duration<double>(seconds);
+
+            uint64_t attempts = 0;
+
+            while (clock::now() < deadline) {
+                for (auto& b : candidates) {
+                    if (clock::now() >= deadline) break;
+
+                    string h = b.compute_hash();
+                    ++attempts;
+
+                    if (starts_with(h, DIFFICULTY_PREFIX)) {
+                        double took = std::chrono::duration<double>(clock::now() - start).count();
+                        cout << "[MINE] Kandidatas IŠKASTAS! Hash=" << h << " (nonce=" << b.header.nonce << ") per " << attempts << " bandymų, " << fixed << setprecision(2) << took << "s\n";
+                        return b;
+                    }
+
+                    ++b.header.nonce;
+                }
+            }
+
+            return nullopt;
+        }
+
+
     };
     
 
