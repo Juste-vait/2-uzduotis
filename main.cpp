@@ -159,23 +159,22 @@ class Blockchain {
             }
 
             double time_limit = 5.0; 
-            uint64_t max_tries = 200'000;
 
             while (true) {
-                vector<Block> cands; cands.reserve(5);
+                vector<Block> cands;
+                cands.reserve(5);
                 for (int i = 0; i < 5; ++i) cands.push_back(make_candidate_block(txs_per_block));
 
                 cout << "[MINE] Kasinėjame 5 kandidatus po " << txs_per_block << " TX (" << fixed << setprecision(2) << time_limit << "s / " << max_tries << " bandymų)...\n";
 
-                auto mined = mine_candidates(cands, time_limit, max_tries);
+                auto mined = mine_candidates(cands, time_limit);
 
                 if (!mined) {
-                    cout << "[MINE] Neradome per terminą — didiname laiką/bandymus ir bandome vėl.\n";
+                    cout << "[MINE] Neradome per " << fixed << setprecision(2) << time_limit << "s — didiname laiką 1.5 karto ir bandome vėl.\n";
                     time_limit *= 1.5;
-                    max_tries  *= 2;
                     continue;
                 }
-
+                
                 Block block = std::move(*mined);
                 apply_transactions(block.transactions);
                 erase_used_transactions(block.transactions);
