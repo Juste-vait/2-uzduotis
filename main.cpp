@@ -289,17 +289,16 @@ class Blockchain {
             for (int i = 0; i < k; ++i) out.push_back(pending_transactions[idx[i]]);
             return out;
         }
-    
+
         void apply_transactions(const vector<Transaction>& txs) {
-            for (const auto& tx : txs) {
-                auto& sender = users[tx.sender];
-                auto& receiver = users[tx.receiver];
-                if (sender.balance >= tx.amount) {
-                    sender.balance -= tx.amount;
-                    receiver.balance += tx.amount;
-                } else {
-    
-                }
+            for (auto& tx : txs) {
+                string expect = custom_hash(tx.sender + "|" + tx.receiver + "|" + to_string(tx.amount));
+                if (tx.transaction_id != expect) continue;
+                if (!users.count(tx.sender) || !users.count(tx.receiver)) continue;
+                if (users[tx.sender].balance < tx.amount) continue;
+        
+                users[tx.sender].balance -= tx.amount;
+                users[tx.receiver].balance += tx.amount;
             }
         }
     
