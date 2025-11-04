@@ -294,14 +294,18 @@ class Blockchain {
             for (auto& tx : txs) {
                 string expect = custom_hash(tx.sender + "|" + tx.receiver + "|" + to_string(tx.amount));
 
-                if (tx.transaction_id != expect) {
-                    cout << "[SKIP] Neteisingas TX ID: " << tx.transaction_id << "\n";
+                if (tx.amount <= 0) {
+                    cout << "[SKIP] Siunčiama suma turi būti teigiama: " << tx.amount << "\n";
                     continue;
                 }
-                
+
                 if (!users.count(tx.sender) || !users.count(tx.receiver)) {
-                    cout << "[SKIP] Neegzistuojantis siuntėjas arba gavėjas: "
-                         << tx.sender << " / " << tx.receiver << "\n";
+                    cout << "[SKIP] Neegzistuojantis siuntėjas arba gavėjas: " << tx.sender << " / " << tx.receiver << "\n";
+                    continue;
+                }
+
+                if (tx.transaction_id != expect) {
+                    cout << "[SKIP] Neteisingas TX ID: " << tx.transaction_id << "\n";
                     continue;
                 }
 
@@ -309,9 +313,9 @@ class Blockchain {
                     cout << "[SKIP] Nepakanka lėšų: " << tx.sender << " turi " << users[tx.sender].balance << ", bando siųsti " << tx.amount << "\n";
                     continue;
                 }
-        
-                if (tx.amount <= 0) {
-                    cout << "[SKIP] Siunčiama suma turi būti neneigiama: " << tx.amount << "\n";
+
+                if (tx.sender == tx.receiver) {
+                    cout << "[SKIP] Siuntėjas ir gavėjas negali būti tas pats: " << tx.sender << "\n";
                     continue;
                 }
         
