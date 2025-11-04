@@ -310,6 +310,11 @@ class Blockchain {
                     continue;
                 }
         
+                if (tx.amount <= 0) {
+                    cout << "[SKIP] Siunčiama suma turi būti neneigiama: " << tx.amount << "\n";
+                    continue;
+                }
+        
                 users[tx.sender].balance -= tx.amount;
                 users[tx.receiver].balance += tx.amount;
             }
