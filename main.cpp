@@ -336,6 +336,27 @@ class Blockchain {
             }
             pending_transactions.swap(keep);
         }
+
+        Block make_candidate_block(int k) {
+            int take = min<int>(k, (int)pending_transactions.size());
+            vector<Transaction> txs = sample_transactions(take);
+
+            vector<string> ids; ids.reserve(txs.size());
+            for (auto& tx : txs) ids.push_back(tx.transaction_id);
+            string txs_hash = merkle_root_from_ids(ids);
+
+            BlockHeader header{
+                last_block_hash(), 
+                current_time_seconds(),
+                VERSION_,   
+                txs_hash,          
+                DIFFICULTY_PREFIX,
+                0  
+            };
+
+            return Block(header, std::move(txs));
+        }
+
     };
     
 
