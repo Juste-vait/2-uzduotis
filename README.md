@@ -1,4 +1,4 @@
-# 2-oji užduotis: Supaprastintos blokų grandinės (Blockchain) kūrimas. v0.1
+# 2-oji užduotis: Supaprastintos blokų grandinės (Blockchain) kūrimas. v0.2
 
 --------------------------
 Supaprastintas blockchain modelis parašytas C++.
