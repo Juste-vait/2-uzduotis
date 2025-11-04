@@ -293,9 +293,22 @@ class Blockchain {
         void apply_transactions(const vector<Transaction>& txs) {
             for (auto& tx : txs) {
                 string expect = custom_hash(tx.sender + "|" + tx.receiver + "|" + to_string(tx.amount));
-                if (tx.transaction_id != expect) continue;
-                if (!users.count(tx.sender) || !users.count(tx.receiver)) continue;
-                if (users[tx.sender].balance < tx.amount) continue;
+
+                if (tx.transaction_id != expect) {
+                    cout << "[SKIP] Neteisingas TX ID: " << tx.transaction_id << "\n";
+                    continue;
+                }
+                
+                if (!users.count(tx.sender) || !users.count(tx.receiver)) {
+                    cout << "[SKIP] Neegzistuojantis siuntėjas arba gavėjas: "
+                         << tx.sender << " / " << tx.receiver << "\n";
+                    continue;
+                }
+
+                if (users[tx.sender].balance < tx.amount) {
+                    cout << "[SKIP] Nepakanka lėšų: " << tx.sender << " turi " << users[tx.sender].balance << ", bando siųsti " << tx.amount << "\n";
+                    continue;
+                }
         
                 users[tx.sender].balance -= tx.amount;
                 users[tx.receiver].balance += tx.amount;
