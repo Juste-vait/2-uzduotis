@@ -100,7 +100,7 @@ Output pabaiga: <rm>
 AI (ChatGPT) kuriant 2 versiją:
 - Merkle Tree paaiškinimas ir realizacija – padėjo suprasti, kas yra Merkle medis, kaip jis formuojamas ir kaip apskaičiuojamas Merkle Root iš transakcijų ID sąrašo.  
 - Transakcijų verifikacijos kūrimas – padėjo suprasti, ką reikia patikrinti ir kaip tai įgyvendinti.  
-- Kasimo procesas – paaiškino ir padėjo suprojektuoti kelių kandidatinių blokų kasimą su laiko limitu ir limitų didinimu (`×1.5`).    
+- Kasimo procesas – paaiškino ir padėjo realizuoti kelių kandidatinių blokų kasimą su laiko limitu ir limito didinimu (`×1.5`).    
 - Reikalavimų ir kodų paaiškinimai – apskritai padėjo suprasti, kas yra reikalaujama, ir išsiaiškinti kitas kodo sintaksės detales.
 
 
