@@ -161,13 +161,11 @@ class Blockchain {
             int k = min<int>(txs_per_block, (int)pending_transactions.size());
             vector<Transaction> txs = sample_transactions(k);
     
-            string add_ids;
-            add_ids.reserve(k * 64 + k);
+            vector<string> ids;
             for (auto& tx : txs) {
-                add_ids += tx.transaction_id;
-                add_ids += '|';
+                ids.push_back(tx.transaction_id);
             }
-            string txs_hash = custom_hash(add_ids);
+            string txs_hash = merkle_root_from_ids(ids);
     
             string prev_hash = last_block_hash();
             BlockHeader header{
