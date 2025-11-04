@@ -87,11 +87,11 @@ Atsakinga už:
 
 **Screenshot'ai:**
 
-Pradžia: <rm>
-![Start](1.jpeg)
+Otuput pradžia: <rm>
+![3](3.jpeg)
 
-Pabaiga: <rm>
-![End](2.jpeg)
+Output pabaiga: <rm>
+![4](4.jpeg)
 
 
 
