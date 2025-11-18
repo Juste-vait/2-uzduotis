@@ -11,25 +11,27 @@
 #include <chrono>
 #include <numeric>
 #include <cmath>
+#include <optional>
+#include <bitcoin/system.hpp>
 
 using namespace std;
+using namespace bc;          // bc alias jau ateina iš <bitcoin/system.hpp>
+
+// šitie "using" galima net palikti, jie nekenkia:
+using bc::hash_digest;
+using bc::hash_list;
+using bc::data_chunk;
 
 static const string VERSION_ = "v0.2";
 static const int USERS_COUNT = 1000;
 static const int64_t TX_COUNT = 10000;
 static const int TXS_PER_BLOCK = 100;
 static const string DIFFICULTY_PREFIX = "000";
-static const uint64_t RNG_SEED = 42;
-static optional<int> MAX_BLOCKS_TO_MINE = nullopt;
+static const uint64_t RNG_SEED = 3;
+static optional<int> MAX_BLOCKS_TO_MINE = 10;
 
 static bool starts_with(const string& s, const string& pref) {
     return s.size() >= pref.size() && equal(pref.begin(), pref.end(), s.begin());
-}
-
-static string to_hex16(uint64_t x) {
-    stringstream ss;
-    ss << std::hex << std::setfill('0') << std::setw(16) << std::nouppercase << x;
-    return ss.str();
 }
 
 string custom_hash(const string& input) {
@@ -57,25 +59,74 @@ string custom_hash(const string& input) {
     return ss.str();
 }
 
-static string merkle_root_from_ids(vector<string> ids) {
-    if (ids.empty()) return string(64, '0');
+bc::hash_digest create_merkle(bc::hash_list& merkle)
+{
+    // Stop if hash list is empty or contains one element
+    if (merkle.empty())
+        return bc::null_hash;
+    else if (merkle.size() == 1)
+        return merkle[0];
 
-    while (ids.size() > 1) {
-        vector<string> next;
-        next.reserve((ids.size() + 1) / 2);
+    while (merkle.size() > 1)
+    {
+        if (merkle.size() % 2 != 0)
+            merkle.push_back(merkle.back());
 
-        for (size_t i = 0; i < ids.size(); i += 2) {
-            string L = ids[i];
-            string R = (i + 1 < ids.size()) ? ids[i + 1] : ids[i];
-            next.push_back(custom_hash(L + R));
+        bc::hash_list new_merkle;
+
+        for (auto it = merkle.begin(); it != merkle.end(); it += 2)
+        {
+            bc::data_chunk concat_data(bc::hash_size * 2);
+            auto concat = bc::serializer<decltype(concat_data.begin())>(concat_data.begin());
+            concat.write_hash(*it);
+            concat.write_hash(*(it + 1));
+
+            bc::hash_digest new_root = bc::bitcoin_hash(concat_data);
+
+            new_merkle.push_back(new_root);
         }
 
-        ids.swap(next);
+        merkle = new_merkle;
+
+        std::cout << "Current merkle hash list:\n";
+        for (const auto& h : merkle)
+            std::cout << "  " << bc::encode_base16(h) << std::endl;
+        std::cout << std::endl;
     }
 
-    return ids[0];
+    return merkle[0];
 }
 
+static std::string merkle_root_from_ids(const std::vector<std::string>& ids) {
+    // jei nėra transakcijų – grąžinam nuliais užpildytą hash'ą
+    if (ids.empty()) {
+        return std::string(64, '0');
+    }
+
+    // konvertuojam string’inius tx id į libbitcoin hash_list
+    bc::hash_list merkle;
+    merkle.reserve(ids.size());
+
+    for (const auto& id : ids) {
+        bc::hash_digest h;
+        // decode_hash tikrina, ar string yra 64 simbolių HEX
+        if (!bc::decode_hash(h, id)) {
+            std::cerr << "[WARN] Blogas hash formatas: " << id << std::endl;
+            continue;
+        }
+        merkle.push_back(h);
+    }
+
+    if (merkle.empty()) {
+        return std::string(64, '0');
+    }
+
+    // ČIA svarbiausia vieta – kviečiam libbitcoin create_merkle
+    bc::hash_digest root = create_merkle(merkle);
+
+    // merkle root paversim į hex string, kaip ir anksčiau
+    return bc::encode_base16(root);
+}
 
 struct User {
     string name;
