@@ -15,9 +15,7 @@
 #include <bitcoin/system.hpp>
 
 using namespace std;
-using namespace bc;          // bc alias jau ateina iš <bitcoin/system.hpp>
-
-// šitie "using" galima net palikti, jie nekenkia:
+using namespace bc;
 using bc::hash_digest;
 using bc::hash_list;
 using bc::data_chunk;
@@ -98,18 +96,15 @@ bc::hash_digest create_merkle(bc::hash_list& merkle)
 }
 
 static std::string merkle_root_from_ids(const std::vector<std::string>& ids) {
-    // jei nėra transakcijų – grąžinam nuliais užpildytą hash'ą
     if (ids.empty()) {
         return std::string(64, '0');
     }
 
-    // konvertuojam string’inius tx id į libbitcoin hash_list
     bc::hash_list merkle;
     merkle.reserve(ids.size());
 
     for (const auto& id : ids) {
         bc::hash_digest h;
-        // decode_hash tikrina, ar string yra 64 simbolių HEX
         if (!bc::decode_hash(h, id)) {
             std::cerr << "[WARN] Blogas hash formatas: " << id << std::endl;
             continue;
@@ -121,10 +116,8 @@ static std::string merkle_root_from_ids(const std::vector<std::string>& ids) {
         return std::string(64, '0');
     }
 
-    // ČIA svarbiausia vieta – kviečiam libbitcoin create_merkle
     bc::hash_digest root = create_merkle(merkle);
 
-    // merkle root paversim į hex string, kaip ir anksčiau
     return bc::encode_base16(root);
 }
 

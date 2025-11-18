@@ -5,7 +5,6 @@ int main() {
     std::cout << "libbitcoin version: " 
               << LIBBITCOIN_SYSTEM_VERSION << "\n";
 
-    // Paprastas "hello" hash pavyzdys
     libbitcoin::data_chunk data{'h','e','l','l','o'};
 
     auto hash = libbitcoin::bitcoin_hash(data);
