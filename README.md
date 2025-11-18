@@ -1,7 +1,19 @@
 # 2-oji užduotis: Supaprastintos blokų grandinės (Blockchain) kūrimas. v0.2
 
 --------------------------
-Supaprastintas blockchain modelis parašytas C++.
+## Supaprastintas blockchain modelis parašytas C++.
+--------------------------
+
+## Merkle medžio integracija naudojant Libbitcoin
+Šioje versijoje senas mano Merkle Root skaičiavimas buvo pakeistas libbitcoin-system Merkle funkcija: "bc::hash_digest create_merkle(bc::hash_list& merkle);" ir paredaguota "static std::string merkle_root_from_ids(const std::vector<std::string>& ids)" funkcija.
+
+**Tai yra libbitcoin realizuotas Merkle Root algoritmas, kuris:**
+- tinkamai tvarko nelyginį hash’ų skaičių (dubliuoja paskutinį elementą),
+- sujungia hash’us poromis ir taiko dvigubą SHA256 (bitcoin_hash()),
+- grąžina tikslų Bitcoin Merkle Root,
+- turi debug išvestį, leidžiančią matyti kiekvieną Merkle medžio lygį.
+
+Hash'ų kiekis debug išvestyje padidėjo (rodomi visi Merkle medžio lygiai).
 
 -------------------------
 **Kompiliuoti:** g++ -std=c++17 -O2 main.cpp -o blockchain <rm>
